@@ -3,17 +3,20 @@ from perfsim.engine.enginebase import EngineBase
 from perfsim.context.simcontext import SimContext
 from perfsim.common.command import RequestCmd
 
-import simpy 
+import simpy
+
 
 class TestEngine(unittest.TestCase):
-
     def test_engine_run(self):
         env = simpy.Environment()
         ctx = SimContext(env)
-        hw = EngineBase(env, 'device')
-        ctx.attach(hw)
-        cmds = [RequestCmd(f'wl_{i}', 'compute', i)  for i in range(3)]
+
+        hw_num = 4
+        for i in range(hw_num):
+            hw = EngineBase(env, f'device_{i}')
+            ctx.attach(hw)
+
+        jobs_num = 16
+        cmds = [RequestCmd(f'wl_{i}', 'compute', i) for i in range(jobs_num)]
         ctx.process(cmds)
         env.run()
-        
-    
