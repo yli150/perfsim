@@ -8,14 +8,21 @@ class SimContext:
         self.env = env
         self.timeout = 100
         self.engines = []
+        self.post_init()
+
+    def post_init(self):
+        self.scheduler_start_event = self.env.event()
+        self.moniter_event = self.env.event()
 
     def attach(self, engine):
         self.engines.append(engine)
 
     def schedule(self, cmds: List[RequestCmd]):
         yield self.scheduler_start_event
-        for cmd in cmds:
-            yield self.engines[0].cmd_in_queue.put(cmd)
+        for tid, cmd in enumerate(cmds):
+            hwid = tid % len(self.engines)
+            engine = self.engines[hwid]
+            yield engine.cmd_in_queue.put(cmd)
         yield self.env.timeout(10)
 
     def monitor(self):
@@ -34,8 +41,6 @@ class SimContext:
                 break
 
     def process(self, cmds: List[RequestCmd]):
-        self.scheduler_start_event = self.env.event()
-        self.moniter_event = self.env.event()
         self.env.process(self.schedule(cmds))
         self.env.process(self.monitor())
 

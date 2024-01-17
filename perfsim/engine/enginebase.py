@@ -17,12 +17,15 @@ class EngineBase():
     def cycles(self, cmd: RequestCmd):
         return cmd.id + 2
 
+    def full(self):
+        return len(self.cmd_in_queue) >= 1
+
     def run(self):
         yield self.start_event
 
         while True:
             cmd = yield self.cmd_in_queue.get()
             cycle = self.cycles(cmd)
-            print(f'recv {cmd} and takes {cycle} to process')
+            print(f'Device {self.name} recv {cmd},  takes {cycle} to process at {self.env.now}')
             yield self.env.timeout(cycle)
             yield self.cmd_out_queue.put(cmd.id)
