@@ -1,11 +1,11 @@
 from perfsim.common.command import RequestCmd
-import simpy 
+import simpy
+
 
 class EngineBase():
-
-    def __init__(self, env, name:str) -> None:
+    def __init__(self, env, name: str) -> None:
         self.env = env
-        self.name = name 
+        self.name = name
         self.post_init()
 
     def post_init(self):
@@ -14,8 +14,8 @@ class EngineBase():
         self.cmd_out_queue = simpy.Store(self.env, capacity=1)
         self.proc = self.env.process(self.run())
 
-    def cycles(self, cmd:RequestCmd):
-        return cmd.id + 2 
+    def cycles(self, cmd: RequestCmd):
+        return cmd.id + 2
 
     def run(self):
         yield self.start_event
@@ -26,4 +26,3 @@ class EngineBase():
             print(f'recv {cmd} and takes {cycle} to process')
             yield self.env.timeout(cycle)
             yield self.cmd_out_queue.put(cmd.id)
-
