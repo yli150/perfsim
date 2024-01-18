@@ -15,14 +15,16 @@ class SRAM(Memory):
         self.writeQ = simpy.Store(self.env, capacity=10)
         self.readprc = self.env.process(self.read())
         self.writeprc = self.env.process(self.write())
+        self.prc = self.env.process(self.run())
 
-    def run(self, cmds: List):
+    def run(self):
         yield self.start_event
-        for memCmd in cmds:
-            if memCmd.type == MemOp.READ:
-                yield self.readQ.put(memCmd)
-            if memCmd.type == MemOp.WRITE:
-                yield self.writeQ.put(memCmd)
+
+    def request(self, memCmd):
+        if memCmd.type == MemOp.READ:
+            yield self.readQ.put(memCmd)
+        if memCmd.type == MemOp.WRITE:
+            yield self.writeQ.put(memCmd)
 
     def read(self):
         while True:
