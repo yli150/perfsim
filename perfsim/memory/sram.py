@@ -33,7 +33,6 @@ class SRAM(Memory):
 
             # get all the barriers which are consumed by this command
             barrier_wait_for = [self.barrierMgr.get(b).producer_event for b in rdcmd.cdeps]
-
             yield simpy.AllOf(self.env, barrier_wait_for)
 
             latency = max(rdcmd.size, 1)
@@ -41,9 +40,19 @@ class SRAM(Memory):
             yield self.env.timeout(latency)
             yield self.cmd_out_queue.put(rdcmd)
 
+            # release barrier
+            barrier_to_release = [self.barrierMgr.get(b).producer_event for b in rdcmd.pdeps]
+            for e in barrier_to_release:
+                e.succeed()
+
     def write(self):
         while True:
             wrcmd = yield self.writeQ.get()
+
+            # get all the barriers which are consumed by this command
+            barrier_wait_for = [self.barrierMgr.get(b).producer_event for b in wrcmd.cdeps]
+            yield simpy.AllOf(self.env, barrier_wait_for)
+
             latency = wrcmd.size * 2
             print(f'Device {self.name} WRITE {wrcmd},  takes {latency} to process at {self.env.now}')
             yield self.env.timeout(latency)
