@@ -8,6 +8,7 @@ from perfsim.common.command import RequestCmd
 from perfsim.barrier.barrier import Barrier
 from perfsim.memory.sram import SRAM, MemCmd, MemOp
 from perfsim.barrier.barriermgr import BarrierMgr
+from perfsim.context.context import Context
 import simpy
 
 
@@ -22,9 +23,9 @@ class TestBarrier(unittest.TestCase):
         assert barr.producer_event.triggered == False
 
     def test_sram_engine_barrier_read_after_write(self):
-        env = simpy.Environment()
-        mgr = BarrierMgr()
-        cmx = SRAM(env, mgr, 'ram1')
+        ctx = Context(env=simpy.Environment())
+        cmx = SRAM(ctx, 'ram1')
+        env = ctx.env
 
         # issue write requests
         wcmds = []
@@ -47,16 +48,17 @@ class TestBarrier(unittest.TestCase):
         barr.consumer = rcmds[0].id
 
         # add it into barrier mgr
-        mgr.add(barr)
+        ctx.barrierMgr.add(barr)
 
         cmx.start_event.succeed()
         # env.process(cmx.run())
-        env.run(until=1000)
+        ctx.env.run(until=1000)
 
     def test_sram_multiple_deps(self):
-        env = simpy.Environment()
-        mgr = BarrierMgr()
-        cmx = SRAM(env, mgr, 'ram1')
+        ctx = Context(env=simpy.Environment(), barrierMgr=BarrierMgr())
+        mgr = ctx.barrierMgr
+        cmx = SRAM(ctx, 'ram1')
+        env = ctx.env
 
         # a, b, c, d 4 tasks
         a = MemCmd(f'a', MemOp.READ, 1, 4)
@@ -91,9 +93,10 @@ class TestBarrier(unittest.TestCase):
         env.run(until=1000)
 
     def test_sram_dead_lock(self):
-        env = simpy.Environment()
-        mgr = BarrierMgr()
-        cmx = SRAM(env, mgr, 'ram1')
+        ctx = Context(env=simpy.Environment(), barrierMgr=BarrierMgr())
+        mgr = ctx.barrierMgr
+        cmx = SRAM(ctx, 'ram1')
+        env = ctx.env
 
         # a, b, c, d 4 tasks
         a = MemCmd(f'a', MemOp.READ, 1, 4)

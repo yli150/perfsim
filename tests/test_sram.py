@@ -4,12 +4,14 @@ from perfsim.memory.singleportsram import SinglePortSRAM
 from perfsim.common.command import MemCmd, MemOp
 import simpy
 from perfsim.barrier.barriermgr import BarrierMgr
+from perfsim.context.context import Context
 
 
 class TestSRAM(unittest.TestCase):
     def test_sram_run(self):
-        env = simpy.Environment()
-        cmx = SRAM(env, BarrierMgr(), 'ram1')
+        ctx = Context(env=simpy.Environment())
+        cmx = SRAM(ctx, 'ram1')
+        env = ctx.env
 
         for i in range(9):
             cmd = MemCmd(f'write{i}', MemOp.WRITE, i, i + 1)
@@ -25,8 +27,9 @@ class TestSRAM(unittest.TestCase):
         env.run(until=1000)
 
     def test_single_direct_ram_run(self):
-        env = simpy.Environment()
-        mmx = SinglePortSRAM(env, BarrierMgr(), 'ram1')
+        ctx = Context(env=simpy.Environment())
+        mmx = SinglePortSRAM(ctx, 'ram1')
+        env = ctx.env
 
         for i in range(9):
             cmd = MemCmd(f'write{i}', MemOp.WRITE, i, i + 1)

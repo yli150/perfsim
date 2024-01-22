@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from ..engine.enginebase import EngineBase
+from ..context.context import Context
 import simpy
 
 
 class Memory(ABC):
-    def __init__(self, env, barrierMgr, name: str) -> None:
-        self.env = env
-        self.barrierMgr = barrierMgr
+    def __init__(self, context: Context, name: str) -> None:
+        self.env = context.env
+        self.barrierMgr = context.barrierMgr
         self.name = name
         self.post_init()
 

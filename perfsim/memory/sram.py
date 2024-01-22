@@ -2,13 +2,14 @@ from .memoryabc import Memory
 from ..engine.enginebase import EngineBase
 from perfsim.common.command import MemCmd, MemOp
 from perfsim.barrier.barriermgr import BarrierMgr
+from perfsim.context.context import Context
 import simpy
 from typing import List
 
 
 class SRAM(Memory):
-    def __init__(self, env, barrierMgr: BarrierMgr, name: str) -> None:
-        super().__init__(env, barrierMgr, name)
+    def __init__(self, context: Context, name: str) -> None:
+        super().__init__(context, name)
 
     def post_init(self):
         super().post_init()
