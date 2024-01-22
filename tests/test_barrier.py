@@ -89,3 +89,41 @@ class TestBarrier(unittest.TestCase):
         cmx.start_event.succeed()
         # env.process(cmx.run())
         env.run(until=1000)
+
+    def test_sram_dead_lock(self):
+        env = simpy.Environment()
+        mgr = BarrierMgr()
+        cmx = SRAM(env, mgr, 'ram1')
+
+        # a, b, c, d 4 tasks
+        a = MemCmd(f'a', MemOp.READ, 1, 4)
+        b = MemCmd(f'b', MemOp.WRITE, 2, 7)
+        c = MemCmd(f'c', MemOp.READ, 3, 15)
+        d = MemCmd(f'd', MemOp.READ, 4, 9)
+
+        for cmd in [a, b, c, d]:
+            env.process(cmx.request(cmd))
+
+        # dependency
+        # a --> b --- \
+        #   \----------> c ----> d
+
+        bAB = Barrier(env, 10, 'ab', producer=a.id, consumer=b.id)
+        bAC = Barrier(env, 11, 'ac', producer=a.id, consumer=c.id)
+        bBC = Barrier(env, 12, 'bc', producer=b.id, consumer=c.id)
+        bCD = Barrier(env, 13, 'cd', producer=c.id, consumer=d.id)
+        for barrier in [bAB, bAC, bBC, bCD]:
+            mgr.add(barrier)
+
+        # assign deps on command
+        a.pdeps = [bAB.id, bAC.id]
+        # b rely on edge from c to d
+        b.cdeps = [bAB.id, bCD.id]
+        b.pdeps = [bBC.id]
+        c.cdeps = [bBC.id, bAC.id]
+        c.pdeps = [bCD.id]
+        d.cdeps = [bCD.id]
+
+        cmx.start_event.succeed()
+        # env.process(cmx.run())
+        env.run(until=1000)
