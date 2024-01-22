@@ -4,8 +4,9 @@ import simpy
 
 
 class Memory(ABC):
-    def __init__(self, env, name: str) -> None:
+    def __init__(self, env, barrierMgr, name: str) -> None:
         self.env = env
+        self.barrierMgr = barrierMgr
         self.name = name
         self.post_init()
 
