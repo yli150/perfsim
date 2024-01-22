@@ -5,6 +5,7 @@ from perfsim.engine.enginessync import EngineSync
 
 from perfsim.context.simcontext import SimContext
 from perfsim.common.command import RequestCmd
+from perfsim.barrier.barriermgr import BarrierMgr
 
 import simpy
 

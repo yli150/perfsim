@@ -1,13 +1,14 @@
 from .memoryabc import Memory
 from ..engine.enginebase import EngineBase
 from perfsim.common.command import MemCmd, MemOp
+from perfsim.barrier.barriermgr import BarrierMgr
 import simpy
 from typing import List
 
 
 class SinglePortSRAM(Memory):
-    def __init__(self, env, name: str) -> None:
-        super().__init__(env, name)
+    def __init__(self, env, barrierMgr, name: str) -> None:
+        super().__init__(env, barrierMgr, name)
 
     def post_init(self):
         super().post_init()
