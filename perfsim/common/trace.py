@@ -16,8 +16,8 @@ class Trace():
     @classmethod
     def from_record(cls, record):
         return cls(name=record.name,
-                   pid=0,
-                   tid=record.device_id,
+                   pid=record.devicedes.name,
+                   tid=record.devicedes.id,
                    ts=record.startT,
                    dur=record.endT - record.startT,
                    cat='MEM')
