@@ -55,3 +55,5 @@ class TestStatistic(unittest.TestCase):
 
         assert ctx.statistic.get(d.id).startT == 4 + 14 + 15
         assert ctx.statistic.get(d.id).endT == 4 + 14 + 15 + 9
+
+        ctx.statistic.to_chrome_trace('x.json')
