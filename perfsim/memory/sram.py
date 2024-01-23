@@ -6,7 +6,7 @@ from perfsim.context.context import Context
 import simpy
 from typing import List
 from perfsim.common.packet import StatisticPacket
-from perfsim.context.record import Record
+from perfsim.common.record import Record
 
 
 class SRAM(Memory):
