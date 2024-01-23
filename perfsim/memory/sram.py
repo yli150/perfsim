@@ -7,12 +7,13 @@ import simpy
 from typing import List
 from perfsim.common.packet import StatisticPacket
 from perfsim.common.record import Record
+from perfsim.common.devicedes import DeviceDesc
 
 
 class SRAM(Memory):
     def __init__(self, context: Context, name: str) -> None:
         super().__init__(context, name)
-        self.device_id = 1000
+        self.devicedes = DeviceDesc('SRAM', '', 1)
 
     def post_init(self):
         super().post_init()
@@ -28,9 +29,9 @@ class SRAM(Memory):
 
     def request(self, memCmd):
         if memCmd.type == MemOp.READ:
-            yield self.readQ.put(StatisticPacket(memCmd, self.device_id))
+            yield self.readQ.put(StatisticPacket(memCmd, self.devicedes))
         if memCmd.type == MemOp.WRITE:
-            yield self.writeQ.put(StatisticPacket(memCmd, self.device_id))
+            yield self.writeQ.put(StatisticPacket(memCmd, self.devicedes))
 
     def read(self):
         while True:

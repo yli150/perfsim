@@ -2,12 +2,13 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import List
 from .command import RequestCmd
+from .devicedes import DeviceDesc
 
 
 @dataclass
 class StatisticPacket:
     cmd: RequestCmd
-    device_id: int
+    devicedes: DeviceDesc
     startT: int = field(default=0)
     endT: int = field(default=0)
 
@@ -21,4 +22,3 @@ class StatisticPacket:
     def __getattr__(self, name):
         if hasattr(self.cmd, name):
             return getattr(self.cmd, name)
-        return getattr(self, name)
