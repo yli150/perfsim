@@ -6,6 +6,7 @@ import simpy
 
 class Memory(ABC):
     def __init__(self, context: Context, name: str) -> None:
+        self.ctx = context
         self.env = context.env
         self.barrierMgr = context.barrierMgr
         self.name = name

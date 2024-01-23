@@ -6,6 +6,7 @@ from perfsim.context.context import Context
 import simpy
 from typing import List
 from perfsim.common.packet import StatisticPacket
+from perfsim.context.record import Record
 
 
 class SRAM(Memory):
@@ -19,6 +20,7 @@ class SRAM(Memory):
         self.writeQ = simpy.Store(self.env, capacity=10)
         self.readprc = self.env.process(self.read())
         self.writeprc = self.env.process(self.write())
+        self.recordprc = self.env.process(self.record_into_statistic_report())
         self.prc = self.env.process(self.run())
 
     def run(self):
@@ -40,7 +42,6 @@ class SRAM(Memory):
 
             rdcmd.start(self.env.now)
             latency = max(rdcmd.size, 1)
-            print(f'Device {self.name} READ {rdcmd},  takes {latency} to process at {self.env.now}')
             yield self.env.timeout(latency)
             rdcmd.terminate(self.env.now)
 
@@ -62,7 +63,6 @@ class SRAM(Memory):
             wrcmd.start(self.env.now)
 
             latency = wrcmd.size * 2
-            print(f'Device {self.name} WRITE {wrcmd},  takes {latency} to process at {self.env.now}')
             yield self.env.timeout(latency)
 
             wrcmd.terminate(self.env.now)
@@ -73,3 +73,8 @@ class SRAM(Memory):
             barrier_to_release = [self.barrierMgr.get(b).producer_event for b in wrcmd.pdeps]
             for e in barrier_to_release:
                 e.succeed()
+
+    def record_into_statistic_report(self):
+        while True:
+            packet = yield self.cmd_out_queue.get()
+            self.ctx.statistic.add(Record.from_packet(packet))
