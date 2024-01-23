@@ -4,11 +4,12 @@ from perfsim.common.command import MemCmd, MemOp
 from perfsim.barrier.barriermgr import BarrierMgr
 import simpy
 from typing import List
+from ..context.context import Context
 
 
 class SinglePortSRAM(Memory):
-    def __init__(self, env, barrierMgr, name: str) -> None:
-        super().__init__(env, barrierMgr, name)
+    def __init__(self, context: Context, name: str) -> None:
+        super().__init__(context, name)
 
     def post_init(self):
         super().post_init()
