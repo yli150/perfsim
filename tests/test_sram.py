@@ -14,12 +14,12 @@ class TestSRAM(unittest.TestCase):
         env = ctx.env
 
         for i in range(9):
-            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, i + 1)
+            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, size=i + 1)
             env.process(cmx.request(cmd))
 
         # issue request at the begin
         for i in range(5):
-            cmd = MemCmd(f'read{i}', MemOp.READ, i, i + 1)
+            cmd = MemCmd(f'read{i}', MemOp.READ, i, size=i + 1)
             env.process(cmx.request(cmd))
 
         cmx.start_event.succeed()
@@ -32,12 +32,12 @@ class TestSRAM(unittest.TestCase):
         env = ctx.env
 
         for i in range(9):
-            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, i + 1)
+            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, [], [], i + 1)
             env.process(mmx.request(cmd))
 
         # issue request at the begin
         for i in range(5):
-            cmd = MemCmd(f'read{i}', MemOp.READ, i, i + 1)
+            cmd = MemCmd(f'read{i}', MemOp.READ, i, [], [], i + 1)
             env.process(mmx.request(cmd))
 
         mmx.start_event.succeed()

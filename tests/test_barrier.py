@@ -30,7 +30,7 @@ class TestBarrier(unittest.TestCase):
         # issue write requests
         wcmds = []
         for i in range(3):
-            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, i + 1)
+            cmd = MemCmd(f'write{i}', MemOp.WRITE, i, [], [], i + 1)
             wcmds.append(cmd)
             env.process(cmx.request(cmd))
 
@@ -41,7 +41,7 @@ class TestBarrier(unittest.TestCase):
         # issue read request
         rcmds = []
         for i in range(3):
-            rcmd = MemCmd(f'read{i}', MemOp.READ, i, i + 1)
+            rcmd = MemCmd(f'read{i}', MemOp.READ, i, [], [], i + 1)
             rcmds.append(rcmd)
             env.process(cmx.request(rcmd))
         rcmds[0].cdeps = [barr.id]
@@ -61,10 +61,10 @@ class TestBarrier(unittest.TestCase):
         env = ctx.env
 
         # a, b, c, d 4 tasks
-        a = MemCmd(f'a', MemOp.READ, 1, 4)
-        b = MemCmd(f'b', MemOp.WRITE, 2, 7)
-        c = MemCmd(f'c', MemOp.READ, 3, 15)
-        d = MemCmd(f'd', MemOp.READ, 4, 9)
+        a = MemCmd(f'a', MemOp.READ, 1, [], [], 4)
+        b = MemCmd(f'b', MemOp.WRITE, 2, [], [], 7)
+        c = MemCmd(f'c', MemOp.READ, 3, [], [], 15)
+        d = MemCmd(f'd', MemOp.READ, 4, [], [], 9)
 
         for cmd in [a, b, c, d]:
             env.process(cmx.request(cmd))

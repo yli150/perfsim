@@ -21,13 +21,16 @@ class MemOp(Enum):
 
 
 @dataclass
-class MemCmd:
-    name: str
-    type: MemOp
-    id: int
-    size: int
-    pdeps: List[int] = field(default_factory=list)
-    cdeps: List[int] = field(default_factory=list)
+class MemCmd(RequestCmd):
+    size: int = field(default=0)
 
     def __str__(self) -> str:
-        return f'{self.name}_{self.id}_{self.type.name}_{self.size}'
+        return f'MemCmd {self.name}_{self.id}_{self.type.name}_{self.size}'
+
+
+@dataclass
+class ComputeCmd(RequestCmd):
+    macs: int = field(default=0)
+
+    def __str__(self) -> str:
+        return f'ComputeCmd {self.name}_{self.id}_{self.type.name}_{self.macs}'

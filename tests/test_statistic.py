@@ -20,10 +20,10 @@ class TestStatistic(unittest.TestCase):
         env = ctx.env
 
         # a, b, c, d 4 tasks
-        a = MemCmd(f'a', MemOp.READ, 1, 4)
-        b = MemCmd(f'b', MemOp.WRITE, 2, 7)
-        c = MemCmd(f'c', MemOp.READ, 3, 15)
-        d = MemCmd(f'd', MemOp.READ, 4, 9)
+        a = MemCmd(f'a', MemOp.READ, 1, size=4)
+        b = MemCmd(f'b', MemOp.WRITE, 2, size=7)
+        c = MemCmd(f'c', MemOp.READ, 3, size=15)
+        d = MemCmd(f'd', MemOp.READ, 4, size=9)
 
         for cmd in [a, b, c, d]:
             env.process(cmx.request(cmd))
