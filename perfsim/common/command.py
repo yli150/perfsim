@@ -34,3 +34,12 @@ class ComputeCmd(RequestCmd):
 
     def __str__(self) -> str:
         return f'ComputeCmd {self.name}_{self.id}_{self.type.name}_{self.macs}'
+
+
+@dataclass
+class XferCmd(MemCmd):
+    src: int = field(default=0)
+    dst: int = field(default=0)
+
+    def __str__(self) -> str:
+        return f'XferCmd {self.name}_{self.id}_from_{self.src}_to_{self.dst}'
