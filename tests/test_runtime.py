@@ -63,7 +63,7 @@ class TestRuntime(unittest.TestCase):
         b = ComputeCmd(f'b', MemOp.WRITE, 2, [], [], 7 * 1024)
         c = MemCmd(f'c', MemOp.READ, 3, [], [], 15)
         d = ComputeCmd(f'd', MemOp.READ, 4, [], [], 9 * 1024)
-        e = DspCmd(f'e', MemOp.READ, 5, [], [], 8)
+        e = DspCmd(f'e', MemOp.READ, 5, [], [], 8 * 1024)
 
         # dependency
         # a --> b --- \
