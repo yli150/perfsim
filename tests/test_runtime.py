@@ -1,9 +1,4 @@
 import unittest
-from perfsim.engine.enginebase import EngineBase
-from perfsim.engine.enginemulstage import EngineMulStage
-from perfsim.engine.enginessync import EngineSync
-
-from perfsim.context.simcontext import SimContext
 from perfsim.common.command import RequestCmd, ComputeCmd
 from perfsim.barrier.barrier import Barrier
 from perfsim.memory.sram import SRAM, MemCmd, MemOp
@@ -23,9 +18,9 @@ class TestRuntime(unittest.TestCase):
 
         # a, b, c, d 4 tasks
         a = MemCmd(f'a', MemOp.READ, 1, [], [], 4)
-        b = ComputeCmd(f'b', MemOp.WRITE, 2, [], [], 7)
+        b = ComputeCmd(f'b', MemOp.WRITE, 2, [], [], 7 * 1024)
         c = MemCmd(f'c', MemOp.READ, 3, [], [], 15)
-        d = ComputeCmd(f'd', MemOp.READ, 4, [], [], 9)
+        d = ComputeCmd(f'd', MemOp.READ, 4, [], [], 9 * 1024)
 
         # dependency
         # a --> b --- \
@@ -53,3 +48,5 @@ class TestRuntime(unittest.TestCase):
 
         rt.start()
         env.run(until=1000)
+
+        ctx.statistic.to_chrome_trace('x.json')
