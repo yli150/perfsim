@@ -1,19 +1,23 @@
 from perfsim.common.command import RequestCmd
 import simpy
+from ..context.context import Context
+from .enginecmp import EngineCompute
+from ..common.devicedes import DeviceDesc
 
 
-class EngineMulStage():
+class EngineMulStage(EngineCompute):
     '''
     3 Stages 
     Load -> Compute -> Store 
     '''
-    def __init__(self, env, name: str) -> None:
-        self.env = env
-        self.name = name
+    def __init__(self, context: Context, name: str) -> None:
+        super().__init__(context, name)
+        self.devicedes = DeviceDesc('DSP', '', 0)
         self.post_init()
 
     def post_init(self):
-        self.start_event = self.env.event()
+        super().post_init()
+
         # 3 queues
         self.loadQ = simpy.Store(self.env, capacity=1)
         self.computeQ = simpy.Store(self.env, capacity=1)

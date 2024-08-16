@@ -2,9 +2,10 @@ from perfsim.barrier.barriermgr import BarrierMgr
 from perfsim.context.context import Context
 import simpy
 from typing import List
-from perfsim.common.command import RequestCmd, ComputeCmd, MemCmd
+from perfsim.common.command import RequestCmd, ComputeCmd, MemCmd, DspCmd
 from collections import defaultdict
 from perfsim.engine.tensorcore import TensorCore
+from perfsim.engine.dsp import DSP
 from perfsim.memory.sram import SRAM
 
 
@@ -17,13 +18,19 @@ class Runtime():
         self.request_fifo = defaultdict(list)
         self.start_event = self.env.event()
         # build device instance
-        self.hw_devices = {'memory': SRAM(self.ctx, 'SRAM'), 'compute': TensorCore(self.ctx, 'TensorCore')}
+        self.hw_devices = {
+            'memory': SRAM(self.ctx, 'SRAM'),
+            'compute': TensorCore(self.ctx, 'TensorCore'),
+            'dsp': DSP(self.ctx, 'DSP')
+        }
 
     def push(self, rcmd: RequestCmd):
         if isinstance(rcmd, ComputeCmd):
             self.request_fifo['compute'].append(rcmd)
         if isinstance(rcmd, MemCmd):
             self.request_fifo['memory'].append(rcmd)
+        if isinstance(rcmd, DspCmd):
+            self.request_fifo['dsp'].append(rcmd)
 
     def start(self):
         '''
@@ -45,6 +52,8 @@ class Runtime():
                 self.env.process(self._compute())
             if engine == 'memory':
                 self.env.process(self._dma())
+            if engine == 'dsp':
+                self.env.process(self._dsp())
 
     def _compute(self):
         yield self.start_event
@@ -57,5 +66,12 @@ class Runtime():
         yield self.start_event
         tasks = self.request_fifo['memory']
         dev = self.hw_devices['memory']
+        for task in tasks:
+            self.env.process(dev.request(task))
+
+    def _dsp(self):
+        yield self.start_event
+        tasks = self.request_fifo['dsp']
+        dev = self.hw_devices['dsp']
         for task in tasks:
             self.env.process(dev.request(task))
