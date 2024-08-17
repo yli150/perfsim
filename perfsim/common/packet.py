@@ -11,6 +11,7 @@ class StatisticPacket:
     devicedes: DeviceDesc
     startT: int = field(default=0)
     endT: int = field(default=0)
+    power: float = field(default=0.0)
 
     def start(self, t: int):
         self.startT = t

@@ -2,12 +2,14 @@ from .enginecmp import EngineCompute
 from ..context.context import Context
 import simpy
 from ..common.devicedes import DeviceDesc
+from ..power.powertensorcore import PowerTensorCore
 
 
 class TensorCore(EngineCompute):
     def __init__(self, context: Context, name: str) -> None:
         super().__init__(context, name)
         self.devicedes = DeviceDesc('TensorCore', '', 0)
+        self.power_model = PowerTensorCore(context, 'TensorCore', '')
 
     def post_init(self):
         super().post_init()
@@ -27,6 +29,8 @@ class TensorCore(EngineCompute):
             latency = cmd.macs // 1024
             yield self.env.timeout(latency)
             cmd.terminate(self.env.now)
+
+            cmd.power = self.power_model.get_power(1000)
 
             yield self.cmd_out_queue.put(cmd)
 
