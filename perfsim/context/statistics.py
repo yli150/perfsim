@@ -1,5 +1,5 @@
 from ..common.record import Record
-from ..common.trace import Trace
+from ..common.trace import Trace, PowerTrace
 import json
 
 
@@ -20,9 +20,14 @@ class Statistics(object):
     def to_chrome_trace(self, outpath: str):
         chrome_traces = {}
         chrome_traces['displayTimeUnit'] = 'ns'
+
+        # time trace and power trace
         traces = []
+        ptraces = []
         for k, v in self.records.items():
             traces.append(Trace.from_record(v))
+            ptraces.append(PowerTrace.from_record(v))
+        traces.extend(ptraces)
 
         chrome_traces['traceEvents'] = traces
         json_string = json.dumps(chrome_traces, default=lambda o: o.__dict__, indent=4)

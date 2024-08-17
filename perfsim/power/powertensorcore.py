@@ -7,6 +7,9 @@ class PowerTensorCore(Power):
     def __init__(self, context: Context, name: str, powerfile: str) -> None:
         super().__init__(context, name, powerfile)
 
+    def post_init(self, powerfile):
+        return super().post_init(powerfile)
+
     def get_power(self, freq: int):
         lkage_p = self.get_leakage_power()
         dyn_p = self.get_dynamic_power(freq)
