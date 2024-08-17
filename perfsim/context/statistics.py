@@ -24,9 +24,21 @@ class Statistics(object):
         # time trace and power trace
         traces = []
         ptraces = []
+        last_ts = 0
+        pt_dev = set()
         for k, v in self.records.items():
             traces.append(Trace.from_record(v))
-            ptraces.append(PowerTrace.from_record(v))
+            pt = PowerTrace.from_record(v)
+            pt_dev.add(pt.name)
+            ptraces.append(pt)
+            last_ts = v.endT if v.endT > last_ts else last_ts
+
+        # For each power device, add terminal power trace
+        for _pdev in pt_dev:
+            _pt = PowerTrace(name=_pdev, pid=_pdev, ts=last_ts, args={_pdev: 0.0})
+            ptraces.append(_pt)
+
+        # Combine power traces and time traces
         traces.extend(ptraces)
 
         chrome_traces['traceEvents'] = traces

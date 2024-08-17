@@ -36,9 +36,8 @@ class PowerTrace():
 
     @classmethod
     def from_record(cls, record):
-        return cls(name='POWER',
-                   pid='POWER',
-                   tid='POWER',
+        return cls(name=record.devicedes.name + '_POWER',
+                   pid=record.devicedes.name + '_POWER',
                    ts=record.startT,
                    dur=record.endT - record.startT,
-                   args={'Power': record.power})
+                   args={record.devicedes.name + '_POWER': record.power})
