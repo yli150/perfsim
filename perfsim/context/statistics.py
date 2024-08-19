@@ -1,22 +1,25 @@
 from ..common.record import Record
 from ..common.trace import Trace, PowerTrace
 import json
+from .power_trace_pti import generate_power_trace_pti
 
 
 class Statistics(object):
     def __init__(self) -> None:
-        self.records = {}
+        self.records = []
         self.powertrace = False
 
     def get(self, id: int):
-        return self.records[id]
+        for r in self.records:
+            if id == r.id:
+                return r
 
     def add(self, record: Record):
-        self.records[record.id] = record
+        self.records.append(record)
 
     def dump(self):
-        for k, v in self.records.items():
-            print(f'{k} {v}')
+        for v in self.records:
+            print(f'{v.id} {v}')
 
     def to_chrome_trace(self, outpath: str):
         chrome_traces = {}
@@ -24,17 +27,10 @@ class Statistics(object):
 
         # time trace and power trace
         traces = []
-        ptraces = []
-
-        for k, v in self.records.items():
+        for v in self.records:
             traces.append(Trace.from_record(v))
-            if self.powertrace:
-                # Generate power trace from record
-                pt = PowerTrace.from_record(v)
-                # insert terminal pt
-                ptzero = PowerTrace(name=pt.name, pid=pt.pid, tid=pt.tid, ts=pt.ts + pt.dur, args={pt.name: 0.0})
-                ptraces.append(pt)
-                ptraces.append(ptzero)
+
+        ptraces = generate_power_trace_pti(self.records, pti=1)
 
         # Combine power traces and time traces
         traces.extend(ptraces)

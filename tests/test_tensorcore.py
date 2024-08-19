@@ -71,4 +71,4 @@ class TestTensorCore(unittest.TestCase):
         env.run(until=1000)
 
         ctx.statistic.dump()
-        ctx.statistic.to_chrome_trace('x2.json')
+        ctx.statistic.to_chrome_trace('x3.json')
