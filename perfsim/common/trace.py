@@ -28,10 +28,7 @@ class PowerTrace():
     ph: str = 'C'
     name: str = "Power"
     pid: int = 0
-    tid: int = 0
     ts: int = 0
-    dur: int = 0
-    cat: str = "None"
     args: dict = field(default_factory=dict)
 
     @classmethod
@@ -39,5 +36,4 @@ class PowerTrace():
         return cls(name=record.devicedes.name + '_POWER',
                    pid=record.devicedes.name + '_POWER',
                    ts=record.startT,
-                   dur=record.endT - record.startT,
-                   args={record.devicedes.name + '_POWER': record.power})
+                   args={'power': record.power})
