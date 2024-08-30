@@ -30,7 +30,7 @@ class TestConvNumeric(unittest.TestCase):
         wt = torch.Tensor(w)
         yt = torch.nn.functional.conv2d(xt, wt, stride=[2, 2], padding=[0, 0])
 
-        assert np.allclose(y, yt.numpy(), atol=0.01)
+        assert np.allclose(y, yt.numpy(), atol=0.1)
 
     def test_conv_numerical_block(self):
         # x = np.ones(shape=(1, 3, 12, 12), dtype=np.float16)

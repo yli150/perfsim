@@ -87,31 +87,4 @@ class Conv2DBlock():
                         _wgt = weight[_k:_k + stencil.K, _c:_c + stencil.C]
                         _psum = np.einsum('nhwc, kc -> nhwk', _a, _wgt)
                         out[:, _y:_y + stencil.H, _x:_x + stencil.W, _k:_k + stencil.K] += _psum
-        return out.astype(np.float32)
-
-    def dispatch_to_pe(self, act: np.ndarray, wgt: np.ndarray):
-        # <H, W, IC, OC>
-        pe_array = Stencil(16, 8, 16, 128)
-        cube = Stencil(4, 4, 16, 16)
-
-        pe_pairs = {
-            # id, act offset, wgt offset
-            # OC 0->16
-            0: ((0, 0, 0, 0), (0, 0)),
-            1: ((0, 4, 0, 0), (0, 0)),
-            2: ((4, 0, 0, 0), (0, 0)),
-            3: ((4, 4, 0, 0), (0, 0)),
-            4: ((8, 0, 0, 0), (0, 0)),
-            5: ((8, 4, 0, 0), (0, 0)),
-            6: ((12, 0, 0, 0), (0, 0)),
-            7: ((12, 4, 0, 0), (0, 0)),
-            # OC 16->32
-            8: ((0, 0, 0, 0), (32, 0)),
-            9: ((0, 4, 0, 0), (32, 0)),
-            10: ((4, 0, 0, 0), (32, 0)),
-            11: ((4, 4, 0, 0), (32, 0)),
-            12: ((8, 0, 0, 0), (32, 0)),
-            13: ((8, 4, 0, 0), (32, 0)),
-            14: ((12, 0, 0, 0), (32, 0)),
-            15: ((12, 4, 0, 0), (32, 0)),
-        }
+        return out.astype(np.float16)
