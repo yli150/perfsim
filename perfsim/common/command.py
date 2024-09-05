@@ -51,3 +51,13 @@ class XferCmd(MemCmd):
 
     def __str__(self) -> str:
         return f'XferCmd {self.name}_{self.id}_from_{self.src}_to_{self.dst}'
+
+
+@dataclass
+class MMACmd(RequestCmd):
+    n: int = field(default=0)
+    m: int = field(default=0)
+    k: int = field(default=0)
+
+    def __str__(self) -> str:
+        return f'MMACmd {self.name}_{self.id}_{self.n}_{self.m}_{self.k}'
