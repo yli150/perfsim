@@ -36,7 +36,7 @@ class MMACore(EngineCompute):
         self.computeQ = simpy.Store(self.env, capacity=10)
         self.storeQ = simpy.Store(self.env, capacity=10)
 
-        self.load_token = simpy.Resource(self.env, capacity=1)
+        self.load_event = self.env.event()
 
         self.cmd_in_queue = simpy.Store(self.env, capacity=10)
         self.cmd_out_queue = simpy.Store(self.env, capacity=10)
@@ -55,8 +55,10 @@ class MMACore(EngineCompute):
             # partition into blocks
             blocks = self.partition(cmd)
             for block in blocks:
-                yield self.load_event
                 yield self.loadQ.put(block)
+                # use event to wait for data processed by self.load
+                yield self.load_event
+                self.load_event = self.env.event()
 
     def partition(self, cmd: MMACmd):
         m_block, n_block, k_block = 32, 32, 32
@@ -75,22 +77,17 @@ class MMACore(EngineCompute):
     def load(self):
         yield self.start_event
         while True:
-            with self.load_token.request() as req:
-                block: MMABlock = yield self.loadQ.get()
-
-            print(f'load {block.last} {self.env.now} {block.bid}')
+            block: MMABlock = yield self.loadQ.get()
             lsize = block.m * block.k
             lsize += block.n * block.k
             cycle = lsize // (128)
-            yield self.env.timeout(16)
-            print(f'load exit {block.last} {self.env.now} {block.bid}')
-
+            yield self.env.timeout(cycle)
+            self.load_event.succeed()
             yield self.computeQ.put(block)
 
     def compute(self):
         while True:
             block: MMABlock = yield self.computeQ.get()
-            # print(f'compute {block.last} {self.env.now} {block.bid}')
             compute = block.m * block.n * block.k
             cycle = compute // 2048
             yield self.env.timeout(cycle)
@@ -99,7 +96,6 @@ class MMACore(EngineCompute):
     def store(self):
         while True:
             block: MMABlock = yield self.storeQ.get()
-            # print(f'store {block.last} {self.env.now} {block.bid}')
             ssize = block.n * block.m
             cycle = ssize // (128)
             yield self.env.timeout(cycle)
