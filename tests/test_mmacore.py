@@ -48,6 +48,6 @@ class TestMmaCore(unittest.TestCase):
         env.run(until=1000)
 
         ctx.statistic.dump()
-        ctx.statistic.to_chrome_trace('mma.json', power_trace=False)
+        ctx.statistic.to_chrome_trace('mmax.json', power_trace=False)
         # load , compute 16 , store 8
         assert ctx.statistic.records[0].endT == 16 + 16 * 4 + 8

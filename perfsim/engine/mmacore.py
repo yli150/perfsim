@@ -26,7 +26,6 @@ class MMACore(EngineCompute):
     def __init__(self, context: Context, name: str) -> None:
         super().__init__(context, name)
         self.devicedes = DeviceDesc('DSP', '', 0)
-        self.post_init()
 
     def post_init(self):
         super().post_init()
@@ -35,11 +34,6 @@ class MMACore(EngineCompute):
         self.loadQ = simpy.Store(self.env, capacity=1)
         self.computeQ = simpy.Store(self.env, capacity=10)
         self.storeQ = simpy.Store(self.env, capacity=10)
-
-        self.load_event = self.env.event()
-
-        self.cmd_in_queue = simpy.Store(self.env, capacity=10)
-        self.cmd_out_queue = simpy.Store(self.env, capacity=10)
 
         # process
         self.env.process(self.load())
@@ -56,9 +50,6 @@ class MMACore(EngineCompute):
             blocks = self.partition(cmd)
             for block in blocks:
                 yield self.loadQ.put(block)
-                # use event to wait for data processed by self.load
-                yield self.load_event
-                self.load_event = self.env.event()
 
     def partition(self, cmd: MMACmd):
         m_block, n_block, k_block = 32, 32, 32
@@ -82,7 +73,6 @@ class MMACore(EngineCompute):
             lsize += block.n * block.k
             cycle = lsize // (128)
             yield self.env.timeout(cycle)
-            self.load_event.succeed()
             yield self.computeQ.put(block)
 
     def compute(self):
